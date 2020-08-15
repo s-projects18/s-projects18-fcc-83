@@ -1,4 +1,8 @@
 # This entrypoint file to be used in development. Start by reading README.md
+import os
+# error with default tmp-folder
+os.environ['MPLCONFIGDIR'] = "/tmp"
+
 import medical_data_visualizer
 from unittest import main
 

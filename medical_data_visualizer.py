@@ -4,10 +4,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import data
-df = None
+df = pd.read_csv("medical_examination.csv")
 
 # Add 'overweight' column
-df['overweight'] = None
+# calculate their BMI by dividing their weight in kilograms by the square of their height in meters. 
+df['bmi'] = df['weight'] * 10000 / (df['height']*df['height'])
+f_bad = (df['bmi'] > 25)    # > 25 then the person is overweight
+df['overweight'] = 0        # 0 for NOT overweight
+# SettingWithCopyWarning
+# - df['overweight'].loc[f_bad] = 1
+# - df['overweight'][f_bad] = 1 
+# https://www.dataquest.io/blog/settingwithcopywarning/
+# use loc instead
+df.loc[f_bad, 'overweight'] = 1 # 1 for overweight
+
+
+print(df)
 
 # Normalize data by making 0 always good and 1 always bad. If the value of 'cholestorol' or 'gluc' is 1, make the value 0. If the value is more than 1, make the value 1.
 
