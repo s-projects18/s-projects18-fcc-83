@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import data
+# set index to id
 df = pd.read_csv("medical_examination.csv",  index_col=0)
+
 # [0a] check NaN
 # Any time a variable is set to 'None', make sure to set it to the correct code.
 #for k in df.columns:
 #  print(k, df[k].unique())
-# no 'None' here...
+# => no 'None' here
 
 # [0b] Clean the data 
 # Filter out the following patient segments that represent incorrect data:
@@ -29,7 +31,7 @@ f_weight = (df['weight'] >= df['weight'].quantile(0.025))
 f_weight2 = (df['weight'] <= df['weight'].quantile(0.975))
 
 cond = (~f_diast | ~f_height | ~f_height2 | ~f_weight | ~f_weight2)
-# index must be set for df!
+# index must be set for df! (70000 -> 63259)
 df.drop(index = df[cond].index, inplace=True) 
 
 
@@ -61,20 +63,32 @@ df.loc[~f_gluc, "gluc"] = 0
 
 # [3] Draw Categorical Plot
 def draw_cat_plot():
-    # Create DataFrame for cat plot using `pd.melt` using just the values from 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight'.
-    df_cat = None
+  list_cols = ["active", "alco", "cholesterol","gluc", "overweight","smoke"]
+  df2 = pd.melt(df, id_vars="cardio", value_vars=list_cols)
+
+  dfo = df2.groupby("cardio")
+  df_tmp = pd.DataFrame()
+  for k,v in dfo:
+      # Type: Series
+      vc = dfo.get_group(k).value_counts() # groups: cardio=0,1
+      
+      # transform Series in DataFrame   
+      for val, cnt in vc.iteritems():
+          df_tmp = df_tmp.append({'cardio':k,'variable':val[1], 'value':val[2], 'total':cnt}, ignore_index=True)
+
+  # 0.0->0 / 1.0=>1
+  df_tmp['cardio'] = pd.to_numeric(df_tmp['cardio'], downcast='integer') 
+  df_tmp['value'] = pd.to_numeric(df_tmp['value'], downcast='integer')   
+    
+  # HUE changes the layout, how stange is that? color influences position!!!
+  # - only with hue the 0/1 of the variables are represented
+  # COL: makes 2 figures in 1 row, based on: cardio 
+  fig = sns.catplot(x="variable", kind="bar", hue="value", y="total", col="cardio", order=list_cols, data=df_tmp)
 
 
-    # Group and reformat the data to split it by 'cardio'. Show the counts of each feature. You will have to rename one of the collumns for the catplot to work correctly.
-    df_cat = None
-
-    # Draw the catplot with 'sns.catplot()'
-
-
-
-    # Do not modify the next two lines
-    fig.savefig('catplot.png')
-    return fig
+  # Do not modify the next two lines
+  fig.savefig('catplot.png')
+  return fig
 
 
 # [4] Draw Heat Map
