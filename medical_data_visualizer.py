@@ -3,6 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
+#https://towardsdatascience.com/a-quick-guide-on-descriptive-statistics-using-pandas-and-seaborn-2aadc7395f32
+
 # Import data
 # set index to id
 df = pd.read_csv("medical_examination.csv",  index_col=0)
@@ -80,11 +82,10 @@ def draw_cat_plot():
   df_tmp['cardio'] = pd.to_numeric(df_tmp['cardio'], downcast='integer') 
   df_tmp['value'] = pd.to_numeric(df_tmp['value'], downcast='integer')   
     
-  # HUE changes the layout, how stange is that? color influences position!!!
+  # HUE changes the layout, how strange is that? color <-> layout
   # - only with hue the 0/1 of the variables are represented
   # COL: makes 2 figures in 1 row, based on: cardio 
   fig = sns.catplot(x="variable", kind="bar", hue="value", y="total", col="cardio", order=list_cols, data=df_tmp)
-
 
   # Do not modify the next two lines
   fig.savefig('catplot.png')
@@ -93,24 +94,28 @@ def draw_cat_plot():
 
 # [4] Draw Heat Map
 def draw_heat_map():
-    # Clean the data
-    df_heat = None
+  # https://heartbeat.fritz.ai/seaborn-heatmaps-13-ways-to-customize-correlation-matrix-visualizations-f1c49c816f07
 
-    # Calculate the correlation matrix
-    corr = None
+  #TODO
+  # order axes
+  # add index
 
-    # Generate a mask for the upper triangle
-    mask = None
+  # Clean the data
+  df_heat = df # filtered out before (uncorrect data)
 
+  # Calculate the correlation matrix
+  corr = df_heat.corr()
 
+  # Generate a mask for the upper triangle
+  mask = np.triu(df_heat.corr())
 
-    # Set up the matplotlib figure
-    fig, ax = None
+  # Set up the matplotlib figure
+  plt.rcParams['figure.figsize'] = (10.0, 10.0)
+  fig, ax = plt.subplots() # returns tuple
 
-    # Draw the heatmap with 'sns.heatmap()'
+  # Draw the heatmap with 'sns.heatmap()'
+  sns.heatmap(ax=ax, data=corr, annot=True, fmt='.1f', mask=mask)
 
-
-
-    # Do not modify the next two lines
-    fig.savefig('heatmap.png')
-    return fig
+  # Do not modify the next two lines
+  fig.savefig('heatmap.png')
+  return fig
