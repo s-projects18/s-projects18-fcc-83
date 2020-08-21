@@ -84,8 +84,11 @@ def draw_cat_plot():
     
   # HUE changes the layout, how strange is that? color <-> layout
   # - only with hue the 0/1 of the variables are represented
-  # COL: makes 2 figures in 1 row, based on: cardio 
-  fig = sns.catplot(x="variable", kind="bar", hue="value", y="total", col="cardio", order=list_cols, data=df_tmp)
+  # COL: makes 2 figures in 1 row/image, based on: cardio 
+  g = sns.catplot(x="variable", kind="bar", hue="value", y="total", col="cardio", order=list_cols, data=df_tmp)
+  
+  # https://forum.freecodecamp.org/t/fcc-medical-data-visualizer/408460
+  fig = g.fig # g = FacetGrid object
 
   # Do not modify the next two lines
   fig.savefig('catplot.png')
@@ -101,7 +104,19 @@ def draw_heat_map():
   # add index
 
   # Clean the data
-  df_heat = df # filtered out before (uncorrect data)
+  df_heat = df.copy() # filtered out before (uncorrect data)
+
+  # FCC1: in fcc solution "id" is part of the heatmap
+  # if index is removed: id is part of heatmap,
+  # but all correlations are 0 so it's useless
+  df_heat.reset_index(inplace=True)
+
+  # FCC2: bmi is not part of the heatmap
+  df_heat.drop(columns=["bmi"], inplace=True)
+  
+  # FCC3: expected values in FCC ends up with
+  # , '', '', '' 
+  # what does this data stands for?
 
   # Calculate the correlation matrix
   corr = df_heat.corr()
